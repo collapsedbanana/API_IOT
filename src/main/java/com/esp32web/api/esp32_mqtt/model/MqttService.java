@@ -46,51 +46,39 @@ public class MqttService {
             if (client == null) {
                 client = new MqttClient(brokerUrl, clientId, new MemoryPersistence());
             }
-
+    
             MqttConnectOptions options = new MqttConnectOptions();
             options.setUserName(username);
             options.setPassword(password.toCharArray());
             options.setAutomaticReconnect(true);
             options.setCleanSession(true);
-
+    
+            System.out.println("🔌 Tentative de connexion à MQTT : " + brokerUrl);
+            client.connect(options);
+            System.out.println("✅ Connexion MQTT réussie !");
+    
             client.setCallback(new MqttCallback() {
                 @Override
                 public void connectionLost(Throwable cause) {
-                    System.out.println("🔌 Connexion MQTT perdue : " + cause.getMessage());
+                    System.out.println("❌ Connexion MQTT perdue : " + cause.getMessage());
                 }
-
+    
                 @Override
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
-                    String payload = new String(message.getPayload());
-                    System.out.println("📥 Message reçu : " + payload);
-                    try {
-                        JSONObject json = new JSONObject(payload);
-                        float temperature = (float) json.getDouble("temperature");
-                        float humidity = (float) json.getDouble("humidity");
-                        int luminositeRaw = json.getInt("luminosite_raw");
-                        int humiditeSolRaw = json.getInt("humidite_sol_raw");
-
-                        Capteur capteur = new Capteur(temperature, humidity, luminositeRaw, humiditeSolRaw);
-                        capteurRepository.save(capteur);
-                        System.out.println("✅ Données enregistrées en base !");
-                    } catch (Exception e) {
-                        System.out.println("⚠️ Erreur lors du traitement du message : " + e.getMessage());
-                    }
+                    System.out.println("📥 Message reçu sur " + topic + " : " + new String(message.getPayload()));
                 }
-
+    
                 @Override
                 public void deliveryComplete(IMqttDeliveryToken token) {
                     System.out.println("📡 Message MQTT envoyé avec succès.");
                 }
             });
-
-            if (!client.isConnected()) {
-                client.connect(options);
-            }
+    
             client.subscribe(topic);
-            System.out.println("✅ Connecté à MQTT et abonné au topic : " + topic);
-        } catch (Exception e) {
-            System.out.println("❌ Erreur de connexion MQTT : " + e.getMessage());
+            System.out.println("✅ Abonné au topic : " + topic);
+        } catch (MqttException e) {
+            System.out.println("❌ Erreur de connexion MQTT : " + e.getMessage() + " (Code : " + e.getReasonCode() + ")");
         }
     }
+    
 }

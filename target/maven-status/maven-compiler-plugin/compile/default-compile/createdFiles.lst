@@ -1,1 +1,6 @@
+com\esp32web\api\esp32_mqtt\model\Capteur.class
 com\esp32web\api\esp32_mqtt\Esp32MqttApplication.class
+com\esp32web\api\esp32_mqtt\model\MqttService$1.class
+com\esp32web\api\esp32_mqtt\controller\CapteurController.class
+com\esp32web\api\esp32_mqtt\model\MqttService.class
+com\esp32web\api\esp32_mqtt\repository\CapteurRepository.class
