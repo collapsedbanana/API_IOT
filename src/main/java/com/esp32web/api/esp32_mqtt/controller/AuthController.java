@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "*") // Autorise toutes les origines (pour le développement)
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -54,7 +55,6 @@ public class AuthController {
         }
         
         logger.info("Connexion réussie pour l'utilisateur: {}", loginRequest.getUsername());
-        // Ici, tu pourrais générer et renvoyer un token JWT pour sécuriser les autres endpoints
         return ResponseEntity.ok("Connexion réussie !");
     }
 }

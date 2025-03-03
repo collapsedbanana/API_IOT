@@ -17,11 +17,10 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    // Nouveau champ role ; par défaut "USER"
+    // Par défaut, le rôle est "USER"
     @Column(nullable = false)
     private String role = "USER";
 
-    // Relation avec les capteurs
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Capteur> capteurs;
 

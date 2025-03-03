@@ -18,13 +18,19 @@ public class SecurityConfig {
         http
             .csrf().disable()
             .authorizeHttpRequests(auth -> auth
+                // Endpoints d'authentification ouverts
                 .requestMatchers("/api/auth/**").permitAll()
-                // Exemple : seul un administrateur peut accéder aux données globales des capteurs
-                .requestMatchers("/api/capteurs/all").hasRole("ADMIN")
+                // Endpoints réservés aux administrateurs
+                .requestMatchers("/api/capteurs/all", "/api/capteurs/assign", "/api/capteurs/delete/**").hasRole("ADMIN")
+                // Par contre, l'endpoint pour voir ses propres capteurs est accessible à tout utilisateur authentifié
+                .requestMatchers("/api/capteurs/mine").authenticated()
+                // Toute autre requête doit être authentifiée
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .httpBasic().disable();
+            .httpBasic()  // Active Basic Auth pour faciliter les tests
+            .and()
+            .formLogin().disable();
 
         return http.build();
     }
