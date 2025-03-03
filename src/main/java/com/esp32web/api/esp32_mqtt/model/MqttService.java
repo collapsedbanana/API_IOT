@@ -13,6 +13,9 @@ public class MqttService {
 
     private final CapteurRepository capteurRepository;
 
+    // Variable pour stocker la dernière donnée reçue
+    private volatile Capteur latestCapteur;
+
     @Value("${mqtt.broker}")
     private String brokerUrl;
 
@@ -36,7 +39,6 @@ public class MqttService {
 
     @PostConstruct
     public void init() {
-        // Affiche la valeur injectée pour le debug
         System.out.println("mqtt.clientId = " + clientId);
         connect();
     }
@@ -63,6 +65,7 @@ public class MqttService {
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
                     String payload = new String(message.getPayload());
                     System.out.println("📥 Message reçu : " + payload);
+
                     try {
                         JSONObject json = new JSONObject(payload);
                         float temperature = (float) json.getDouble("temperature");
@@ -70,8 +73,15 @@ public class MqttService {
                         int luminositeRaw = json.getInt("luminosite_raw");
                         int humiditeSolRaw = json.getInt("humidite_sol_raw");
 
+                        // Création d'un nouvel objet Capteur
                         Capteur capteur = new Capteur(temperature, humidity, luminositeRaw, humiditeSolRaw);
+
+                        // Enregistrement en base
                         capteurRepository.save(capteur);
+
+                        // Stockage de la dernière donnée reçue
+                        latestCapteur = capteur;
+
                         System.out.println("✅ Données enregistrées en base !");
                     } catch (Exception e) {
                         System.out.println("⚠️ Erreur lors du traitement du message : " + e.getMessage());
@@ -89,8 +99,14 @@ public class MqttService {
             }
             client.subscribe(topic);
             System.out.println("✅ Connecté à MQTT et abonné au topic : " + topic);
+
         } catch (Exception e) {
             System.out.println("❌ Erreur de connexion MQTT : " + e.getMessage());
         }
+    }
+
+    // Getter pour récupérer la dernière donnée reçue
+    public Capteur getLatestCapteur() {
+        return latestCapteur;
     }
 }
