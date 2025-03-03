@@ -1,5 +1,6 @@
 package com.esp32web.api.esp32_mqtt.controller;
 
+import com.esp32web.api.esp32_mqtt.dto.CapteurFlexibleDTO;
 import com.esp32web.api.esp32_mqtt.model.Capteur;
 import com.esp32web.api.esp32_mqtt.model.User;
 import com.esp32web.api.esp32_mqtt.repository.CapteurRepository;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -81,4 +83,42 @@ public class CapteurController {
         capteurRepository.save(capteur);
         return ResponseEntity.ok("Capteur " + capteurId + " associé à l'utilisateur " + username);
     }
+    
+    // Endpoint pour récupérer les données des capteurs de l'utilisateur connecté de façon flexible
+    @GetMapping("/mine/restricted")
+    public ResponseEntity<List<CapteurFlexibleDTO>> getUserCapteursRestricted(Authentication authentication) {
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username);
+        List<Capteur> capteurs = capteurRepository.findByUser(user);
+        
+        // Déclare les variables comme final ou ne les modifie pas ensuite
+        final boolean canViewTemperature = user.getPermission() != null && user.getPermission().isCanViewTemperature();
+        final boolean canViewHumidity = user.getPermission() != null && user.getPermission().isCanViewHumidity();
+        final boolean canViewLuminosite = user.getPermission() != null && user.getPermission().isCanViewLuminosite();
+        final boolean canViewHumiditeSol = user.getPermission() != null && user.getPermission().isCanViewHumiditeSol();
+        
+        List<CapteurFlexibleDTO> dtos = capteurs.stream().map(c -> {
+            CapteurFlexibleDTO dto = new CapteurFlexibleDTO();
+            dto.setTimestamp(c.getTimestamp());
+            if (canViewTemperature) {
+                dto.setTemperature(c.getTemperature());
+            }
+            if (canViewHumidity) {
+                dto.setHumidity(c.getHumidity());
+            }
+            if (canViewLuminosite) {
+                dto.setLuminositeRaw(c.getLuminositeRaw());
+            }
+            if (canViewHumiditeSol) {
+                dto.setHumiditeSolRaw(c.getHumiditeSolRaw());
+            }
+            return dto;
+        }).collect(Collectors.toList());
+        
+        if (dtos.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(dtos);
+    }
+    
 }

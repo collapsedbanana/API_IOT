@@ -24,6 +24,10 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Capteur> capteurs;
 
+    // Association One-to-One avec UserPermission
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserPermission permission;
+
     public User() {}
 
     public User(String username, String password, String role) {
@@ -42,4 +46,6 @@ public class User {
     public void setRole(String role) { this.role = role; }
     public List<Capteur> getCapteurs() { return capteurs; }
     public void setCapteurs(List<Capteur> capteurs) { this.capteurs = capteurs; }
+    public UserPermission getPermission() { return permission; }
+    public void setPermission(UserPermission permission) { this.permission = permission; }
 }
