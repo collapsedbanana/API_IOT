@@ -17,7 +17,7 @@ public class Capteur {
     private int humiditeSolRaw;
     private LocalDateTime timestamp;
 
-    // Nouvelle colonne pour identifier le dispositif/capteur
+    // Nouvelle colonne pour identifier le dispositif/capteur (exemple : adresse MAC)
     @Column(name = "device_id")
     private String deviceId;
 

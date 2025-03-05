@@ -8,6 +8,7 @@ public class CapteurFlexibleDTO {
     private Integer luminositeRaw;
     private Integer humiditeSolRaw;
     private LocalDateTime timestamp;
+    private String deviceId;  // Nouveau champ pour l'identifiant du dispositif
 
     public CapteurFlexibleDTO() {}
 
@@ -41,5 +42,11 @@ public class CapteurFlexibleDTO {
     }
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
+    }
+    public String getDeviceId() {
+        return deviceId;
+    }
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 }
