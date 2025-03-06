@@ -29,19 +29,13 @@ public class Capteur {
     public Capteur() {
     }
 
-    // Constructeur à 4 paramètres (pour des cas où deviceId et user ne sont pas fournis)
-    public Capteur(float temperature, float humidity, int luminositeRaw, int humiditeSolRaw) {
+    // Constructeur complet qui initialise toutes les valeurs
+    public Capteur(float temperature, float humidity, int luminositeRaw, int humiditeSolRaw, String deviceId, User user) {
         this.temperature = temperature;
         this.humidity = humidity;
         this.luminositeRaw = luminositeRaw;
         this.humiditeSolRaw = humiditeSolRaw;
         this.timestamp = LocalDateTime.now();
-        // deviceId et user restent null par défaut
-    }
-
-    // Constructeur complet à 6 paramètres
-    public Capteur(float temperature, float humidity, int luminositeRaw, int humiditeSolRaw, String deviceId, User user) {
-        this(temperature, humidity, luminositeRaw, humiditeSolRaw);
         this.deviceId = deviceId;
         this.user = user;
     }
