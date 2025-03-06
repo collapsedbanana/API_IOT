@@ -26,27 +26,18 @@ public class Capteur {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public Capteur() {}
+    public Capteur() {
+    }
 
-    // Constructeur sans utilisateur (pour des enregistrements initiaux)
-    public Capteur(float temperature, float humidity, int luminositeRaw, int humiditeSolRaw) {
+    // Constructeur complet qui initialise toutes les valeurs
+    public Capteur(float temperature, float humidity, int luminositeRaw, int humiditeSolRaw, String deviceId, User user) {
         this.temperature = temperature;
         this.humidity = humidity;
         this.luminositeRaw = luminositeRaw;
         this.humiditeSolRaw = humiditeSolRaw;
         this.timestamp = LocalDateTime.now();
-    }
-
-    // Constructeur incluant l'utilisateur
-    public Capteur(float temperature, float humidity, int luminositeRaw, int humiditeSolRaw, User user) {
-        this(temperature, humidity, luminositeRaw, humiditeSolRaw);
-        this.user = user;
-    }
-    
-    // Constructeur incluant l'utilisateur et le deviceId
-    public Capteur(float temperature, float humidity, int luminositeRaw, int humiditeSolRaw, String deviceId, User user) {
-        this(temperature, humidity, luminositeRaw, humiditeSolRaw, user);
         this.deviceId = deviceId;
+        this.user = user;
     }
 
     // Getters et Setters
