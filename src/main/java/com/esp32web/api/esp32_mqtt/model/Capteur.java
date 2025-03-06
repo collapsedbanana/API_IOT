@@ -17,11 +17,9 @@ public class Capteur {
     private int humiditeSolRaw;
     private LocalDateTime timestamp;
 
-    // Nouvelle colonne pour identifier le dispositif/capteur (exemple : adresse MAC)
     @Column(name = "device_id")
     private String deviceId;
 
-    // Association vers l'utilisateur
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -30,7 +28,6 @@ public class Capteur {
         // Constructeur par défaut
     }
 
-    // Constructeur complet qui initialise toutes les valeurs
     public Capteur(float temperature, float humidity, int luminositeRaw, int humiditeSolRaw, String deviceId, User user) {
         this.temperature = temperature;
         this.humidity = humidity;
@@ -41,13 +38,12 @@ public class Capteur {
         this.user = user;
     }
 
-    // Nouveau constructeur simplifié (4 paramètres)
     public Capteur(float temperature, float humidity, int luminositeRaw, int humiditeSolRaw) {
         this.temperature = temperature;
         this.humidity = humidity;
         this.luminositeRaw = luminositeRaw;
         this.humiditeSolRaw = humiditeSolRaw;
-        this.timestamp = LocalDateTime.now(); // Initialise automatiquement le timestamp
+        this.timestamp = LocalDateTime.now();
     }
 
     // Getters et Setters

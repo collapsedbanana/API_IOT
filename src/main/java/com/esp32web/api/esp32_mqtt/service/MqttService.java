@@ -14,7 +14,6 @@ public class MqttService {
 
     private final CapteurRepository capteurRepository;
 
-    // Variable pour stocker la dernière donnée reçue
     private volatile Capteur latestCapteur;
 
     @Value("${mqtt.broker}")
@@ -57,6 +56,7 @@ public class MqttService {
             options.setCleanSession(true);
 
             client.setCallback(new MqttCallback() {
+
                 @Override
                 public void connectionLost(Throwable cause) {
                     System.out.println("🔌 Connexion MQTT perdue : " + cause.getMessage());
@@ -73,27 +73,24 @@ public class MqttService {
                         float humidity = (float) json.getDouble("humidity");
                         int luminositeRaw = json.getInt("luminosite_raw");
                         int humiditeSolRaw = json.getInt("humidite_sol_raw");
-                        String macAddress = json.optString("macAddress", null); // Utilise optString pour éviter les erreurs si le champ est absent
+                        String macAddress = json.optString("macAddress", null);
 
                         if (macAddress == null || macAddress.isEmpty()) {
                             throw new IllegalArgumentException("Adresse MAC manquante ou invalide !");
                         }
 
-                        // Log des données extraites
                         System.out.println("Données extraites : temperature=" + temperature +
                                 ", humidity=" + humidity +
                                 ", luminositeRaw=" + luminositeRaw +
                                 ", humiditeSolRaw=" + humiditeSolRaw +
                                 ", macAddress=" + macAddress);
 
-                        // Création d'un nouvel objet Capteur avec tous les champs nécessaires
                         Capteur capteur = new Capteur(temperature, humidity, luminositeRaw, humiditeSolRaw, macAddress, null);
-                        System.out.println("Objet Capteur créé : " + capteur);
+                        capteurRepository.save(capteur);
 
-                        // Enregistrement en base
-                        Capteur savedCapteur = capteurRepository.save(capteur);
+                        latestCapteur = capteur;
+
                         System.out.println("✅ Données enregistrées en base avec succès !");
-
                     } catch (Exception e) {
                         System.out.println("⚠️ Erreur lors du traitement du message : " + e.getMessage());
                         e.printStackTrace();
@@ -115,9 +112,8 @@ public class MqttService {
         } catch (Exception e) {
             System.out.println("❌ Erreur de connexion MQTT : " + e.getMessage());
         }
-    }
+   }
 
-   // Getter pour récupérer la dernière donnée reçue
    public Capteur getLatestCapteur() { 
        return latestCapteur; 
    }
