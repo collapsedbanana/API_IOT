@@ -72,9 +72,10 @@ public class MqttService {
                         float humidity = (float) json.getDouble("humidity");
                         int luminositeRaw = json.getInt("luminosite_raw");
                         int humiditeSolRaw = json.getInt("humidite_sol_raw");
+                        String macAddress = json.getString("macAddress");
 
-                        // Création d'un nouvel objet Capteur
-                        Capteur capteur = new Capteur(temperature, humidity, luminositeRaw, humiditeSolRaw);
+                        // Création d'un nouvel objet Capteur avec le deviceId renseigné par la MAC
+                        Capteur capteur = new Capteur(temperature, humidity, luminositeRaw, humiditeSolRaw, macAddress, null);
 
                         // Enregistrement en base
                         capteurRepository.save(capteur);
@@ -110,5 +111,3 @@ public class MqttService {
         return latestCapteur;
     }
 }
-
-
