@@ -1,7 +1,6 @@
 package com.esp32web.api.esp32_mqtt.service;
 
 import com.esp32web.api.esp32_mqtt.model.Capteur;
-import com.esp32web.api.esp32_mqtt.model.MqttService;
 import com.esp32web.api.esp32_mqtt.repository.CapteurRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
