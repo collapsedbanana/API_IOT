@@ -62,32 +62,42 @@ public class MqttService {
                 }
 
                 @Override
-                public void messageArrived(String topic, MqttMessage message) throws Exception {
-                    String payload = new String(message.getPayload());
-                    System.out.println("📥 Message reçu : " + payload);
+public void messageArrived(String topic, MqttMessage message) throws Exception {
+    String payload = new String(message.getPayload());
+    System.out.println("📥 Message reçu : " + payload);
 
-                    try {
-                        JSONObject json = new JSONObject(payload);
-                        float temperature = (float) json.getDouble("temperature");
-                        float humidity = (float) json.getDouble("humidity");
-                        int luminositeRaw = json.getInt("luminosite_raw");
-                        int humiditeSolRaw = json.getInt("humidite_sol_raw");
-                        String macAddress = json.getString("macAddress");
+    try {
+        JSONObject json = new JSONObject(payload);
+        float temperature = (float) json.getDouble("temperature");
+        float humidity = (float) json.getDouble("humidity");
+        int luminositeRaw = json.getInt("luminosite_raw");
+        int humiditeSolRaw = json.getInt("humidite_sol_raw");
+        String macAddress = json.optString("macAddress", null); // Utilise optString pour éviter les erreurs si le champ est absent
 
-                        // Création d'un nouvel objet Capteur avec le deviceId renseigné par la MAC
-                        Capteur capteur = new Capteur(temperature, humidity, luminositeRaw, humiditeSolRaw, macAddress, null);
+        if (macAddress == null || macAddress.isEmpty()) {
+            throw new IllegalArgumentException("Adresse MAC manquante ou invalide !");
+        }
 
-                        // Enregistrement en base
-                        capteurRepository.save(capteur);
+        // Log des données extraites
+        System.out.println("Données extraites : temperature=" + temperature +
+                ", humidity=" + humidity +
+                ", luminositeRaw=" + luminositeRaw +
+                ", humiditeSolRaw=" + humiditeSolRaw +
+                ", macAddress=" + macAddress);
 
-                        // Stockage de la dernière donnée reçue
-                        latestCapteur = capteur;
+        // Création d'un nouvel objet Capteur
+        Capteur capteur = new Capteur(temperature, humidity, luminositeRaw, humiditeSolRaw, macAddress, null);
+        System.out.println("Objet Capteur créé : " + capteur);
 
-                        System.out.println("✅ Données enregistrées en base !");
-                    } catch (Exception e) {
-                        System.out.println("⚠️ Erreur lors du traitement du message : " + e.getMessage());
-                    }
-                }
+        // Enregistrement en base
+        Capteur savedCapteur = capteurRepository.save(capteur);
+        System.out.println("✅ Données enregistrées en base avec succès !");
+
+    } catch (Exception e) {
+        System.out.println("⚠️ Erreur lors du traitement du message : " + e.getMessage());
+        e.printStackTrace();
+    }
+}
 
                 @Override
                 public void deliveryComplete(IMqttDeliveryToken token) {
