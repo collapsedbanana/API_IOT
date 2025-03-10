@@ -1,5 +1,6 @@
 package com.esp32web.api.esp32_mqtt.controller;
 
+import com.esp32web.api.esp32_mqtt.dto.PermissionDTO;
 import com.esp32web.api.esp32_mqtt.model.User;
 import com.esp32web.api.esp32_mqtt.model.UserPermission;
 import com.esp32web.api.esp32_mqtt.repository.UserRepository;
@@ -52,4 +53,43 @@ public class AdminUserController {
         logger.info("Utilisateur {} créé avec succès par l'admin", user.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body("Utilisateur créé avec succès");
     }
+
+    @PutMapping("/update-permissions/{username}")
+public ResponseEntity<?> updateUserPermissions(@PathVariable String username,
+                                               @RequestBody PermissionDTO permissionDTO) {
+    // Récupérer l'utilisateur par son nom
+    User user = userRepository.findByUsername(username);
+    if (user == null) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur introuvable : " + username);
+    }
+
+    // Si l'utilisateur n'a pas encore de permission, on la crée
+    UserPermission userPermission = user.getPermission();
+    if (userPermission == null) {
+        userPermission = new UserPermission();
+        userPermission.setUser(user);
+        user.setPermission(userPermission);
+    }
+
+    // Mettre à jour les permissions depuis le DTO
+    userPermission.setCanViewTemperature(permissionDTO.isCanViewTemperature());
+    userPermission.setCanViewHumidity(permissionDTO.isCanViewHumidity());
+    userPermission.setCanViewLuminosite(permissionDTO.isCanViewLuminosite());
+    userPermission.setCanViewHumiditeSol(permissionDTO.isCanViewHumiditeSol());
+
+    // Sauvegarder
+    userRepository.save(user);
+
+    return ResponseEntity.ok("Permissions mises à jour pour l'utilisateur " + username);
+}
+
+    @DeleteMapping("/delete/{username}")
+    public ResponseEntity<?> deleteUser(@PathVariable String username) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur introuvable : " + username);
+        }
+        userRepository.delete(user);
+        return ResponseEntity.ok("Utilisateur " + username + " supprimé avec succès");
+    }   
 }
