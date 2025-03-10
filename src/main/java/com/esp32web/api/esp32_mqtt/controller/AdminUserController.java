@@ -1,18 +1,19 @@
 package com.esp32web.api.esp32_mqtt.controller;
 
+import com.esp32web.api.esp32_mqtt.model.User;
+import com.esp32web.api.esp32_mqtt.model.UserPermission;
+import com.esp32web.api.esp32_mqtt.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.esp32web.api.esp32_mqtt.model.User;
-import com.esp32web.api.esp32_mqtt.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus; 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/admin/users")
 public class AdminUserController {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminUserController.class);
@@ -23,9 +24,10 @@ public class AdminUserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-        logger.info("Tentative d'enregistrement pour l'utilisateur: {}", user.getUsername());
+    // Changement ici : le mapping est "/create" pour éviter toute ambiguïté
+    @PostMapping("/create")
+    public ResponseEntity<?> createUser(@RequestBody User user) {
+        logger.info("Création d'un nouvel utilisateur par l'admin: {}", user.getUsername());
 
         if (userRepository.findByUsername(user.getUsername()) != null) {
             logger.warn("Utilisateur {} déjà existant", user.getUsername());
@@ -33,28 +35,21 @@ public class AdminUserController {
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // Par défaut, si aucun rôle n'est spécifié, on définit "USER"
+        if (user.getRole() == null || user.getRole().isEmpty()) {
+            user.setRole("USER");
+        }
+        // Créer et associer des permissions par défaut
+        UserPermission permission = new UserPermission();
+        permission.setUser(user);
+        permission.setCanViewTemperature(true);
+        permission.setCanViewLuminosite(true);
+        permission.setCanViewHumidity(false);
+        permission.setCanViewHumiditeSol(false);
+        user.setPermission(permission);
+
         userRepository.save(user);
-
-        logger.info("Utilisateur {} enregistré avec succès", user.getUsername());
-        return ResponseEntity.status(HttpStatus.CREATED).body("Utilisateur enregistré avec succès");
-    }
-    
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User loginRequest) {
-        logger.info("Tentative de connexion pour l'utilisateur: {}", loginRequest.getUsername());
-
-        User user = userRepository.findByUsername(loginRequest.getUsername());
-        if (user == null) {
-            logger.warn("Utilisateur {} non trouvé", loginRequest.getUsername());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur non trouvé");
-        }
-        
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            logger.warn("Mot de passe incorrect pour l'utilisateur {}", loginRequest.getUsername());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Mot de passe incorrect");
-        }
-        
-        logger.info("Connexion réussie pour l'utilisateur: {}", loginRequest.getUsername());
-        return ResponseEntity.ok("Connexion réussie !");
+        logger.info("Utilisateur {} créé avec succès par l'admin", user.getUsername());
+        return ResponseEntity.status(HttpStatus.CREATED).body("Utilisateur créé avec succès");
     }
 }

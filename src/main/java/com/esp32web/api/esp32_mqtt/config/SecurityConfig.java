@@ -18,22 +18,15 @@ public class SecurityConfig {
         http
             .csrf().disable()
             .authorizeHttpRequests(auth -> auth
-                // Endpoint de login ouvert à tous
-                .requestMatchers("/api/auth/login").permitAll()
-                // Endpoints de gestion des utilisateurs (création, modification) réservés aux ADMIN
+                // Les endpoints d'authentification (login et inscription) sont ouverts
+                .requestMatchers("/api/auth/**").permitAll()
+                // Les endpoints de gestion des utilisateurs (admin) sont réservés aux administrateurs
                 .requestMatchers("/api/admin/users/**").hasRole("ADMIN")
-                
-                // --- Exemples de nouvelles règles ---
-                // Remplacez /api/capteurs/... par /api/devices/... ou /api/measurements/... 
-                // selon votre nouveau design (Device + Measurement).
-                .requestMatchers("/api/devices/**").hasRole("ADMIN")        // Ex: gestion des devices réservée aux admins
-                .requestMatchers("/api/measurements/**").authenticated()   // Ex: accès aux mesures pour les utilisateurs connectés
-                
-                // Toute autre requête doit être authentifiée
+                // Par défaut, toute autre requête doit être authentifiée
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .httpBasic()  // Pour faciliter les tests (en production, préférez JWT)
+            .httpBasic()  // Pour faciliter les tests (préférez JWT en production)
             .and()
             .formLogin().disable();
 
