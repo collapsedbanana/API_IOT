@@ -1,13 +1,16 @@
 package com.esp32web.api.esp32_mqtt.controller;
 
 import com.esp32web.api.esp32_mqtt.model.Device;
+import com.esp32web.api.esp32_mqtt.model.Measurement;
 import com.esp32web.api.esp32_mqtt.model.User;
 import com.esp32web.api.esp32_mqtt.repository.DeviceRepository;
+import com.esp32web.api.esp32_mqtt.repository.MeasurementRepository;
 import com.esp32web.api.esp32_mqtt.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication; // Import nécessaire
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -17,13 +20,17 @@ public class DeviceController {
 
     private final DeviceRepository deviceRepository;
     private final UserRepository userRepository;
+    private final MeasurementRepository measurementRepository;
 
-    public DeviceController(DeviceRepository deviceRepository, UserRepository userRepository) {
+    public DeviceController(DeviceRepository deviceRepository, 
+                            UserRepository userRepository, 
+                            MeasurementRepository measurementRepository) {
         this.deviceRepository = deviceRepository;
         this.userRepository = userRepository;
+        this.measurementRepository = measurementRepository;
     }
 
-    // Récupérer tous les devices (ex: pour admin)
+    // Récupérer tous les devices (pour l'admin)
     @GetMapping("/all")
     public ResponseEntity<List<Device>> getAllDevices() {
         List<Device> devices = deviceRepository.findAll();
@@ -33,19 +40,24 @@ public class DeviceController {
         return ResponseEntity.ok(devices);
     }
 
-    // Endpoint pour récupérer les devices assignés à l'utilisateur connecté
-    @GetMapping("/mine")
-    public ResponseEntity<List<Device>> getUserDevices(Authentication authentication) {
+    // Récupérer les mesures des devices assignés à l'utilisateur connecté
+    // Vous pouvez accéder à cet endpoint avec l'authentification de l'utilisateur concerné
+    @GetMapping("/mine-measurements")
+    public ResponseEntity<List<Measurement>> getUserMeasurements(Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username);
-        List<Device> devices = deviceRepository.findByUser(user);
-        if (devices.isEmpty()) {
+        List<Device> userDevices = deviceRepository.findByUser(user);
+        List<Measurement> userMeasurements = new ArrayList<>();
+        for (Device device : userDevices) {
+            userMeasurements.addAll(measurementRepository.findByDevice(device));
+        }
+        if (userMeasurements.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(devices);
+        return ResponseEntity.ok(userMeasurements);
     }
 
-    // Assigner un device à un utilisateur (généralement accessible aux admins)
+    // Assigner un device à un utilisateur (accessible généralement aux admins)
     @PostMapping("/assign")
     public ResponseEntity<String> assignDeviceToUser(@RequestParam String deviceId,
                                                      @RequestParam String username) {
@@ -57,14 +69,12 @@ public class DeviceController {
         if (user == null) {
             return ResponseEntity.badRequest().body("Utilisateur introuvable: " + username);
         }
-
         device.setUser(user);
         deviceRepository.save(device);
-
         return ResponseEntity.ok("Device " + deviceId + " associé à l'utilisateur " + username);
     }
 
-    // Supprimer un device (et potentiellement ses mesures via cascade)
+    // Supprimer un device (et ses mesures si la relation est en cascade)
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteDevice(@PathVariable Long id) {
         if (!deviceRepository.existsById(id)) {
