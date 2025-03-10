@@ -2,6 +2,7 @@ package com.esp32web.api.esp32_mqtt.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "capteurs")
@@ -20,8 +21,9 @@ public class Capteur {
     @Column(name = "device_id")
     private String deviceId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
     public Capteur() {
