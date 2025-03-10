@@ -2,15 +2,15 @@ package com.esp32web.api.esp32_mqtt.dto;
 
 import java.time.LocalDateTime;
 
-public class CapteurFlexibleDTO {
+public class MeasurementDTO {
     private Float temperature;
     private Float humidity;
     private Integer luminositeRaw;
     private Integer humiditeSolRaw;
     private LocalDateTime timestamp;
-    private String deviceId;  // Nouveau champ pour l'identifiant du dispositif
+    private String deviceId;  // Identifiant du dispositif (ex: MAC address)
 
-    public CapteurFlexibleDTO() {}
+    public MeasurementDTO() {}
 
     // Getters et setters
     public Float getTemperature() {
@@ -19,30 +19,35 @@ public class CapteurFlexibleDTO {
     public void setTemperature(Float temperature) {
         this.temperature = temperature;
     }
+
     public Float getHumidity() {
         return humidity;
     }
     public void setHumidity(Float humidity) {
         this.humidity = humidity;
     }
+
     public Integer getLuminositeRaw() {
         return luminositeRaw;
     }
     public void setLuminositeRaw(Integer luminositeRaw) {
         this.luminositeRaw = luminositeRaw;
     }
+
     public Integer getHumiditeSolRaw() {
         return humiditeSolRaw;
     }
     public void setHumiditeSolRaw(Integer humiditeSolRaw) {
         this.humiditeSolRaw = humiditeSolRaw;
     }
+
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
+
     public String getDeviceId() {
         return deviceId;
     }

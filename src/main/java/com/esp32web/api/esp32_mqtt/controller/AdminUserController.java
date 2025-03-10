@@ -10,12 +10,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "*") 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/auth")
-public class AuthController {
+public class AdminUserController {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+    private static final Logger logger = LoggerFactory.getLogger(AdminUserController.class);
 
     @Autowired
     private UserRepository userRepository;

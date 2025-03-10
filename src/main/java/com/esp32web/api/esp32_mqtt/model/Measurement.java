@@ -2,11 +2,10 @@ package com.esp32web.api.esp32_mqtt.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "capteurs")
-public class Capteur {
+@Table(name = "measurements")
+public class Measurement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,35 +15,22 @@ public class Capteur {
     private float humidity;
     private int luminositeRaw;
     private int humiditeSolRaw;
-    private LocalDateTime timestamp;
+    private LocalDateTime timestamp = LocalDateTime.now();
 
-    @Column(name = "device_id")
-    private String deviceId;
+    // Association à un "Device" (capteur physique)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "device_id") 
+    private Device device;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "user_id", nullable = true)
-    private User user;
+    // Constructeurs
+    public Measurement() {}
 
-    public Capteur() {
-        // Constructeur par défaut
-    }
-
-    public Capteur(float temperature, float humidity, int luminositeRaw, int humiditeSolRaw, String deviceId, User user) {
+    public Measurement(float temperature, float humidity, int luminositeRaw, int humiditeSolRaw, Device device) {
         this.temperature = temperature;
         this.humidity = humidity;
         this.luminositeRaw = luminositeRaw;
         this.humiditeSolRaw = humiditeSolRaw;
-        this.timestamp = LocalDateTime.now();
-        this.deviceId = deviceId;
-        this.user = user;
-    }
-
-    public Capteur(float temperature, float humidity, int luminositeRaw, int humiditeSolRaw) {
-        this.temperature = temperature;
-        this.humidity = humidity;
-        this.luminositeRaw = luminositeRaw;
-        this.humiditeSolRaw = humiditeSolRaw;
+        this.device = device;
         this.timestamp = LocalDateTime.now();
     }
 
@@ -52,60 +38,40 @@ public class Capteur {
     public Long getId() {
         return id;
     }
-
     public float getTemperature() {
         return temperature;
     }
-
     public void setTemperature(float temperature) {
         this.temperature = temperature;
     }
-
     public float getHumidity() {
         return humidity;
     }
-
     public void setHumidity(float humidity) {
         this.humidity = humidity;
     }
-
     public int getLuminositeRaw() {
         return luminositeRaw;
     }
-
     public void setLuminositeRaw(int luminositeRaw) {
         this.luminositeRaw = luminositeRaw;
     }
-
     public int getHumiditeSolRaw() {
         return humiditeSolRaw;
     }
-
     public void setHumiditeSolRaw(int humiditeSolRaw) {
         this.humiditeSolRaw = humiditeSolRaw;
     }
-
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
-
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
-
-    public String getDeviceId() {
-        return deviceId;
+    public Device getDevice() {
+        return device;
     }
-
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
+    public void setDevice(Device device) {
+        this.device = device;
     }
 }
