@@ -8,46 +8,39 @@ public class MeasurementDTO {
     private Integer luminositeRaw;
     private Integer humiditeSolRaw;
     private LocalDateTime timestamp;
-    private String deviceId;  // Identifiant du dispositif (ex: MAC address)
+    private String deviceId;
 
-    public MeasurementDTO() {}
-
-    // Getters et setters
+    // Getters et Setters
     public Float getTemperature() {
         return temperature;
     }
     public void setTemperature(Float temperature) {
         this.temperature = temperature;
     }
-
     public Float getHumidity() {
         return humidity;
     }
     public void setHumidity(Float humidity) {
         this.humidity = humidity;
     }
-
     public Integer getLuminositeRaw() {
         return luminositeRaw;
     }
     public void setLuminositeRaw(Integer luminositeRaw) {
         this.luminositeRaw = luminositeRaw;
     }
-
     public Integer getHumiditeSolRaw() {
         return humiditeSolRaw;
     }
     public void setHumiditeSolRaw(Integer humiditeSolRaw) {
         this.humiditeSolRaw = humiditeSolRaw;
     }
-
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
-
     public String getDeviceId() {
         return deviceId;
     }

@@ -1,10 +1,11 @@
 package com.esp32web.api.esp32_mqtt.model;
 
 import jakarta.persistence.*;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "users")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
 
     @Id
@@ -20,10 +21,6 @@ public class User {
     // Par défaut, le rôle est "USER"
     @Column(nullable = false)
     private String role = "USER";
-
-    // === Supprimé : ancienne liste de capteurs ===
-    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    // private List<Capteur> capteurs;
 
     // Association One-to-One avec UserPermission
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

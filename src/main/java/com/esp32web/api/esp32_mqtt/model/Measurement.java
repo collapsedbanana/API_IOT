@@ -2,13 +2,12 @@ package com.esp32web.api.esp32_mqtt.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-
 @Table(name = "measurements")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Measurement {
 
     @Id
@@ -24,9 +23,9 @@ public class Measurement {
     // Association à un "Device" (capteur physique)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "device_id") 
+    @JsonIgnore // On ne sérialise pas le device complet pour éviter la récursivité
     private Device device;
 
-    // Constructeurs
     public Measurement() {}
 
     public Measurement(float temperature, float humidity, int luminositeRaw, int humiditeSolRaw, Device device) {
