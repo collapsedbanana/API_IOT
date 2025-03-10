@@ -5,6 +5,7 @@ import com.esp32web.api.esp32_mqtt.model.User;
 import com.esp32web.api.esp32_mqtt.repository.DeviceRepository;
 import com.esp32web.api.esp32_mqtt.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication; // Import nécessaire
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class DeviceController {
         this.userRepository = userRepository;
     }
 
-    // Récupérer tous les devices
+    // Récupérer tous les devices (ex: pour admin)
     @GetMapping("/all")
     public ResponseEntity<List<Device>> getAllDevices() {
         List<Device> devices = deviceRepository.findAll();
@@ -32,7 +33,19 @@ public class DeviceController {
         return ResponseEntity.ok(devices);
     }
 
-    // Assigner un device à un utilisateur
+    // Endpoint pour récupérer les devices assignés à l'utilisateur connecté
+    @GetMapping("/mine")
+    public ResponseEntity<List<Device>> getUserDevices(Authentication authentication) {
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username);
+        List<Device> devices = deviceRepository.findByUser(user);
+        if (devices.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(devices);
+    }
+
+    // Assigner un device à un utilisateur (généralement accessible aux admins)
     @PostMapping("/assign")
     public ResponseEntity<String> assignDeviceToUser(@RequestParam String deviceId,
                                                      @RequestParam String username) {
@@ -51,7 +64,7 @@ public class DeviceController {
         return ResponseEntity.ok("Device " + deviceId + " associé à l'utilisateur " + username);
     }
 
-    // Supprimer un device (et potentiellement toutes ses mesures, si cascade ALL)
+    // Supprimer un device (et potentiellement ses mesures via cascade)
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteDevice(@PathVariable Long id) {
         if (!deviceRepository.existsById(id)) {

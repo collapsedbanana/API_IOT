@@ -2,11 +2,15 @@ package com.esp32web.api.esp32_mqtt.controller;
 
 import com.esp32web.api.esp32_mqtt.model.Device;
 import com.esp32web.api.esp32_mqtt.model.Measurement;
+import com.esp32web.api.esp32_mqtt.model.User;
 import com.esp32web.api.esp32_mqtt.repository.DeviceRepository;
 import com.esp32web.api.esp32_mqtt.repository.MeasurementRepository;
+import com.esp32web.api.esp32_mqtt.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication; // Import nécessaire
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -16,10 +20,12 @@ public class MeasurementController {
 
     private final MeasurementRepository measurementRepository;
     private final DeviceRepository deviceRepository;
+    private final UserRepository userRepository;
 
-    public MeasurementController(MeasurementRepository measurementRepository, DeviceRepository deviceRepository) {
+    public MeasurementController(MeasurementRepository measurementRepository, DeviceRepository deviceRepository, UserRepository userRepository) {
         this.measurementRepository = measurementRepository;
         this.deviceRepository = deviceRepository;
+        this.userRepository = userRepository;
     }
 
     // Récupérer toutes les mesures d’un device via son deviceId
@@ -36,7 +42,23 @@ public class MeasurementController {
         return ResponseEntity.ok(measurements);
     }
 
-    // Supprimer une mesure précise par son ID
+    // Endpoint pour récupérer les mesures des devices assignés à l'utilisateur connecté
+    @GetMapping("/mine")
+    public ResponseEntity<List<Measurement>> getUserMeasurements(Authentication authentication) {
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username);
+        List<Device> userDevices = deviceRepository.findByUser(user);
+        List<Measurement> userMeasurements = new ArrayList<>();
+        for (Device device : userDevices) {
+            userMeasurements.addAll(measurementRepository.findByDevice(device));
+        }
+        if (userMeasurements.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(userMeasurements);
+    }
+
+    // Supprimer une mesure par son ID
     @DeleteMapping("/delete/{measurementId}")
     public ResponseEntity<String> deleteMeasurement(@PathVariable Long measurementId) {
         if (!measurementRepository.existsById(measurementId)) {
