@@ -16,18 +16,29 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            // Désactive la protection CSRF (pour faciliter les appels depuis un front end externe)
             .csrf().disable()
+
+            // Configuration des règles d'autorisation
             .authorizeHttpRequests(auth -> auth
-                // Les endpoints d'authentification (login et inscription) sont ouverts
+                // Autorise l'accès sans authentification à /api/auth/** (login, register)
                 .requestMatchers("/api/auth/**").permitAll()
-                // Les endpoints de gestion des utilisateurs (admin) sont réservés aux administrateurs
+
+                // Réserve l'accès à /api/admin/users/** aux administrateurs
                 .requestMatchers("/api/admin/users/**").hasRole("ADMIN")
-                // Par défaut, toute autre requête doit être authentifiée
+
+                // Toute autre requête doit être authentifiée
                 .anyRequest().authenticated()
             )
+
+            // Utilise un mode "STATELESS" : pas de session côté serveur
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .httpBasic()  // Pour faciliter les tests (préférez JWT en production)
+
+            // Active l'authentification HTTP Basic (popup dans le navigateur)
+            .httpBasic()
             .and()
+
+            // Désactive le formulaire de login par défaut
             .formLogin().disable();
 
         return http.build();
@@ -35,6 +46,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+        // Utilise BCrypt pour hasher les mots de passe
         return new BCryptPasswordEncoder();
     }
 }
