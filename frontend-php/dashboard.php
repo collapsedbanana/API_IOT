@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start();
 
 // Vérifier que l'utilisateur est connecté et a un rôle
@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['password']) || !isset($_SE
 $httpAuthUser = $_SESSION['user_id'];
 $httpAuthPass = $_SESSION['password'];
 
-// Choix de l'endpoint : admin voit tout, les autres voient seulement leurs données
+// Choix de l'endpoint : ADMIN voit tout, les autres voient seulement leurs données
 $endpoint = ($_SESSION['role'] === 'ADMIN')
     ? "/api/measurements/all"
     : "/api/measurements/mine";
@@ -45,10 +45,10 @@ $latest = end($data);
 // Valeurs nulles par défaut si aucune mesure
 if (!$latest) {
     $latest = [
-        'temperature' => null,
-        'humidity' => null,
-        'humiditeSolRaw' => null,
-        'luminositeRaw' => null
+        'temperature'     => null,
+        'humidity'        => null,
+        'humiditeSolRaw'  => null,
+        'luminositeRaw'   => null
     ];
 }
 ?>
@@ -57,25 +57,33 @@ if (!$latest) {
 <head>
   <meta charset="UTF-8">
   <title>Dashboard - Tableau de Bord</title>
+  <!-- Lien vers votre CSS -->
   <link rel="stylesheet" href="css/style.css">
+  <!-- Lien vers Font Awesome pour les icônes -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" 
+      integrity="sha512-1hcu5sZh+L1TJfj1I3t9wKQyyx3lFiydEXZ4O1/zIYk+cxA1+IGeDbk+Fcp3LZtZUkQh3cMtwxjw79TQ6u6J1A==" 
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <header>
     <h1>Tableau de Bord</h1>
     <nav>
-      <a href="dashboard.php">Dashboard</a> |
-      <?php if ($_SESSION['role'] === 'ADMIN'): ?>
-        <a href="admin_users.php">Gestion des utilisateurs</a> |
-      <?php endif; ?>
-      <a href="logout.php">Déconnexion</a>
+      <div class="nav-links">
+        <?php if ($_SESSION['role'] === 'ADMIN'): ?>
+          <a href="admin_users.php">Gestion des utilisateurs</a>
+        <?php endif; ?>
+      </div>
+      <a class="logout" href="logout.php">Déconnexion</a>
     </nav>
   </header>
 
   <main>
     <h2>Dernières mesures</h2>
     <div class="cards-container">
-      <div class="card">
+      <!-- Carte Température -->
+      <div class="card card-temperature">
+        <i class="fas fa-thermometer-half"></i>
         <h3>Température</h3>
         <p>
           <?php 
@@ -85,7 +93,9 @@ if (!$latest) {
           ?>
         </p>
       </div>
-      <div class="card">
+      <!-- Carte Humidité -->
+      <div class="card card-humidity">
+        <i class="fas fa-tint"></i>
         <h3>Humidité</h3>
         <p>
           <?php 
@@ -95,7 +105,9 @@ if (!$latest) {
           ?>
         </p>
       </div>
-      <div class="card">
+      <!-- Carte Humidité du Sol -->
+      <div class="card card-soil">
+        <i class="fas fa-leaf"></i>
         <h3>Humidité du Sol</h3>
         <p>
           <?php 
@@ -105,7 +117,9 @@ if (!$latest) {
           ?>
         </p>
       </div>
-      <div class="card">
+      <!-- Carte Luminosité -->
+      <div class="card card-luminosity">
+        <i class="fas fa-sun"></i>
         <h3>Luminosité</h3>
         <p>
           <?php 
@@ -127,9 +141,9 @@ if (!$latest) {
     if (!Array.isArray(data) || data.length === 0) {
       console.log("Aucune mesure disponible.");
     } else {
-      const labels = data.map(item => item.timestamp);
+      const labels   = data.map(item => item.timestamp);
       const tempData = data.map(item => item.temperature);
-      const humData = data.map(item => item.humidity);
+      const humData  = data.map(item => item.humidity);
       const soilData = data.map(item => item.humiditeSolRaw);
       const lumiData = data.map(item => item.luminositeRaw);
 
