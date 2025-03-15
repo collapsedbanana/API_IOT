@@ -9,12 +9,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/admin/users")
+@PreAuthorize("hasRole('ADMIN')") // 🔒 Tous les endpoints de ce contrôleur nécessitent le rôle ADMIN
 public class AdminUserController {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminUserController.class);
@@ -25,7 +29,6 @@ public class AdminUserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // Changement ici : le mapping est "/create" pour éviter toute ambiguïté
     @PostMapping("/create")
     public ResponseEntity<?> createUser(@RequestBody User user) {
         logger.info("Création d'un nouvel utilisateur par l'admin: {}", user.getUsername());
@@ -36,11 +39,10 @@ public class AdminUserController {
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        // Par défaut, si aucun rôle n'est spécifié, on définit "USER"
         if (user.getRole() == null || user.getRole().isEmpty()) {
             user.setRole("USER");
         }
-        // Créer et associer des permissions par défaut
+
         UserPermission permission = new UserPermission();
         permission.setUser(user);
         permission.setCanViewTemperature(true);
@@ -55,33 +57,29 @@ public class AdminUserController {
     }
 
     @PutMapping("/update-permissions/{username}")
-public ResponseEntity<?> updateUserPermissions(@PathVariable String username,
-                                               @RequestBody PermissionDTO permissionDTO) {
-    // Récupérer l'utilisateur par son nom
-    User user = userRepository.findByUsername(username);
-    if (user == null) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur introuvable : " + username);
+    public ResponseEntity<?> updateUserPermissions(@PathVariable String username,
+                                                   @RequestBody PermissionDTO permissionDTO) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur introuvable : " + username);
+        }
+
+        UserPermission userPermission = user.getPermission();
+        if (userPermission == null) {
+            userPermission = new UserPermission();
+            userPermission.setUser(user);
+            user.setPermission(userPermission);
+        }
+
+        userPermission.setCanViewTemperature(permissionDTO.isCanViewTemperature());
+        userPermission.setCanViewHumidity(permissionDTO.isCanViewHumidity());
+        userPermission.setCanViewLuminosite(permissionDTO.isCanViewLuminosite());
+        userPermission.setCanViewHumiditeSol(permissionDTO.isCanViewHumiditeSol());
+
+        userRepository.save(user);
+
+        return ResponseEntity.ok("Permissions mises à jour pour l'utilisateur " + username);
     }
-
-    // Si l'utilisateur n'a pas encore de permission, on la crée
-    UserPermission userPermission = user.getPermission();
-    if (userPermission == null) {
-        userPermission = new UserPermission();
-        userPermission.setUser(user);
-        user.setPermission(userPermission);
-    }
-
-    // Mettre à jour les permissions depuis le DTO
-    userPermission.setCanViewTemperature(permissionDTO.isCanViewTemperature());
-    userPermission.setCanViewHumidity(permissionDTO.isCanViewHumidity());
-    userPermission.setCanViewLuminosite(permissionDTO.isCanViewLuminosite());
-    userPermission.setCanViewHumiditeSol(permissionDTO.isCanViewHumiditeSol());
-
-    // Sauvegarder
-    userRepository.save(user);
-
-    return ResponseEntity.ok("Permissions mises à jour pour l'utilisateur " + username);
-}
 
     @DeleteMapping("/delete/{username}")
     public ResponseEntity<?> deleteUser(@PathVariable String username) {
@@ -91,5 +89,14 @@ public ResponseEntity<?> updateUserPermissions(@PathVariable String username,
         }
         userRepository.delete(user);
         return ResponseEntity.ok("Utilisateur " + username + " supprimé avec succès");
-    }   
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        if (users.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(users);
+    }
 }

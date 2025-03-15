@@ -7,8 +7,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus; 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -56,5 +59,18 @@ public class AuthController {
         
         logger.info("Connexion réussie pour l'utilisateur: {}", loginRequest.getUsername());
         return ResponseEntity.ok("Connexion réussie !");
+    }
+
+    // Endpoint pour récupérer le rôle et le nom de l'utilisateur connecté
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(Authentication auth) {
+        String username = auth.getName();
+        User user = userRepository.findByUsername(username);
+        if (user == null) return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(Map.of(
+            "username", user.getUsername(),
+            "role", user.getRole()
+        ));
     }
 }
