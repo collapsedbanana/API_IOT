@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.esp32web.api.esp32_mqtt.Esp32MqttApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 12.27 s -- in com.esp32web.api.esp32_mqtt.Esp32MqttApplicationTests
