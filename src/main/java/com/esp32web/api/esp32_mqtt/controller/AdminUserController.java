@@ -18,7 +18,6 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/admin/users")
-@PreAuthorize("hasRole('ADMIN')") // 🔒 Tous les endpoints de ce contrôleur nécessitent le rôle ADMIN
 public class AdminUserController {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminUserController.class);
@@ -29,7 +28,9 @@ public class AdminUserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    // ✅ Création d'un utilisateur protégée uniquement
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createUser(@RequestBody User user) {
         logger.info("Création d'un nouvel utilisateur par l'admin: {}", user.getUsername());
 
@@ -39,6 +40,7 @@ public class AdminUserController {
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         if (user.getRole() == null || user.getRole().isEmpty()) {
             user.setRole("USER");
         }
@@ -52,11 +54,13 @@ public class AdminUserController {
         user.setPermission(permission);
 
         userRepository.save(user);
-        logger.info("Utilisateur {} créé avec succès par l'admin", user.getUsername());
+        logger.info("✅ Utilisateur {} créé avec succès", user.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body("Utilisateur créé avec succès");
     }
 
+    // ✅ Modification des permissions utilisateur
     @PutMapping("/update-permissions/{username}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateUserPermissions(@PathVariable String username,
                                                    @RequestBody PermissionDTO permissionDTO) {
         User user = userRepository.findByUsername(username);
@@ -78,20 +82,26 @@ public class AdminUserController {
 
         userRepository.save(user);
 
+        logger.info("🔧 Permissions mises à jour pour {}", username);
         return ResponseEntity.ok("Permissions mises à jour pour l'utilisateur " + username);
     }
 
+    // ✅ Suppression d’un utilisateur
     @DeleteMapping("/delete/{username}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteUser(@PathVariable String username) {
         User user = userRepository.findByUsername(username);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur introuvable : " + username);
         }
         userRepository.delete(user);
+        logger.info("🗑️ Utilisateur {} supprimé avec succès", username);
         return ResponseEntity.ok("Utilisateur " + username + " supprimé avec succès");
     }
 
+    // ✅ Récupération de tous les utilisateurs
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userRepository.findAll();
         if (users.isEmpty()) {
