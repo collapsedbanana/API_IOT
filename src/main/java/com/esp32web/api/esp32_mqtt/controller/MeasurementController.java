@@ -10,6 +10,8 @@ import com.esp32web.api.esp32_mqtt.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,6 +87,17 @@ public class MeasurementController {
         }).collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }
+
+
+    @GetMapping("/all")
+@PreAuthorize("hasRole('ADMIN')")
+public ResponseEntity<List<Measurement>> getAllMeasurements() {
+    List<Measurement> allMeasurements = measurementRepository.findAll();
+    if (allMeasurements.isEmpty()) {
+        return ResponseEntity.noContent().build();
+    }
+    return ResponseEntity.ok(allMeasurements);
+}
 
     // Endpoint pour supprimer une mesure par son ID
     @DeleteMapping("/delete/{measurementId}")
