@@ -21,7 +21,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors() // ✅ Active la configuration CORS
+            .cors() // Active CORS
             .and()
             .csrf().disable()
             .authorizeHttpRequests(auth -> auth
@@ -37,12 +37,15 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 🔧 Configuration CORS personnalisée
+    // Configuration CORS personnalisée
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("http://localhost")); // ✅ Côté PHP
+        config.setAllowedOrigins(List.of(
+            "http://192.168.11.70",  // frontend sur le réseau
+            "http://localhost"      // en local si besoin
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
 
