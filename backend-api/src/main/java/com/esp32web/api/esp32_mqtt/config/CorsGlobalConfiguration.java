@@ -9,15 +9,22 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class CorsGlobalConfiguration {
 
     @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("*")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*");
-            }
-        };
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        
+        // Autoriser explicitement ton site
+        config.setAllowedOrigins(List.of("http://192.168.11.70"));
+        
+        // Autoriser les méthodes classiques
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    
+        // Autoriser tous les headers nécessaires
+        config.setAllowedHeaders(List.of("*"));
+    
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
+    
 }
