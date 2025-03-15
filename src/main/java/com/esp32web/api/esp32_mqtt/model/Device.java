@@ -2,7 +2,6 @@ package com.esp32web.api.esp32_mqtt.model;
 
 import jakarta.persistence.*;
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
@@ -21,15 +20,15 @@ public class Device {
     // Un nom lisible ou descriptif, si nécessaire
     private String name;
 
-    // Si vous voulez assigner un device à un utilisateur
+    // Association avec un utilisateur (désérialisé au frontend pour afficher à qui est lié ce capteur)
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "user_id")
-    @JsonIgnore  // On ne sérialise pas l'utilisateur ici pour éviter une boucle
+    @JsonIgnoreProperties({"password", "role", "permission", "hibernateLazyInitializer", "handler"})
     private User user;
 
     // Liste des mesures associées à ce device
     @OneToMany(mappedBy = "device", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore  // Optionnel : si vous ne souhaitez pas renvoyer les mesures directement
+    @JsonIgnoreProperties({"device"})  // Évite de renvoyer tout l'objet `device` dans chaque mesure
     private List<Measurement> measurements;
 
     public Device() {}

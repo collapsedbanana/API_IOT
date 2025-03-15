@@ -86,20 +86,21 @@ public class DeviceController {
     }
 
     @PostMapping("/unassign")
-@PreAuthorize("hasRole('ADMIN')")
-public ResponseEntity<String> unassignDeviceFromUser(@RequestParam String username) {
-    User user = userRepository.findByUsername(username);
-    if (user == null) {
-        return ResponseEntity.badRequest().body("Utilisateur introuvable : " + username);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> unassignDeviceFromUser(@RequestParam String username) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            return ResponseEntity.badRequest().body("Utilisateur introuvable : " + username);
+        }
+    
+        List<Device> devices = deviceRepository.findByUser(user);
+        for (Device device : devices) {
+            device.setUser(null); // dissociation
+            deviceRepository.save(device);
+        }
+    
+        return ResponseEntity.ok("Tous les capteurs ont été dissociés de " + username);
     }
-
-    List<Device> devices = deviceRepository.findByUser(user);
-    for (Device device : devices) {
-        device.setUser(null); // dissocier
-        deviceRepository.save(device);
-    }
-
-    return ResponseEntity.ok("Tous les capteurs ont été dissociés de " + username);
-}
+    
 
 }
