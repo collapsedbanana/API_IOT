@@ -7,6 +7,7 @@ import com.esp32web.api.esp32_mqtt.repository.DeviceRepository;
 import com.esp32web.api.esp32_mqtt.repository.MeasurementRepository;
 import com.esp32web.api.esp32_mqtt.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -83,4 +84,22 @@ public class DeviceController {
         deviceRepository.deleteById(id);
         return ResponseEntity.ok("✅ Device supprimé avec succès !");
     }
+
+    @PostMapping("/unassign")
+@PreAuthorize("hasRole('ADMIN')")
+public ResponseEntity<String> unassignDeviceFromUser(@RequestParam String username) {
+    User user = userRepository.findByUsername(username);
+    if (user == null) {
+        return ResponseEntity.badRequest().body("Utilisateur introuvable : " + username);
+    }
+
+    List<Device> devices = deviceRepository.findByUser(user);
+    for (Device device : devices) {
+        device.setUser(null); // dissocier
+        deviceRepository.save(device);
+    }
+
+    return ResponseEntity.ok("Tous les capteurs ont été dissociés de " + username);
+}
+
 }
