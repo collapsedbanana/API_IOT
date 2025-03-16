@@ -14,25 +14,27 @@ $endpoint = ($_SESSION['role'] === 'ADMIN')
 
 $api_url = "http://192.168.11.70:8080" . $endpoint;
 
-$opts = [
-    "http" => [
-        "method" => "GET",
-        "header" => "Authorization: Bearer " . $_SESSION['token'] . "\r\nContent-Type: application/json\r\n"
-    ]
-];
-$context = stream_context_create($opts);
+// Utiliser cURL pour l'appel API avec le token JWT
+$ch = curl_init($api_url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    "Authorization: Bearer " . $_SESSION['token'],
+    "Content-Type: application/json"
+]);
+$response = curl_exec($ch);
+$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
 
-// Le reste du code ne change pas
-$response = @file_get_contents($api_url, false, $context);
-if ($response === false) {
-    die("Erreur lors de la récupération des données de l'API (peut-être 401, 403, ou 500).");
+if ($http_code !== 200) {
+    http_response_code($http_code);
+    die("Erreur API : Code HTTP $http_code (401 = non autorisé, 500 = erreur serveur, etc)");
 }
 
 // Décodage JSON
 $data = json_decode($response, true);
 if (!is_array($data)) {
     echo "<pre>⚠️ Réponse brute non exploitable :\n$response</pre>";
-    $data = []; // Évite les erreurs en cas de mauvaise réponse
+    $data = []; // Évite les erreurs
 }
 
 // Limiter aux 10 dernières mesures
@@ -54,12 +56,8 @@ if (!$latest) {
 <head>
   <meta charset="UTF-8">
   <title>Dashboard - Tableau de Bord</title>
-  <!-- Lien vers votre CSS -->
   <link rel="stylesheet" href="css/style.css">
-  <!-- Lien vers Font Awesome pour les icônes -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" 
-      integrity="sha512-1hcu5sZh+L1TJfj1I3t9wKQyyx3lFiydEXZ4O1/zIYk+cxA1+IGeDbk+Fcp3LZtZUkQh3cMtwxjw79TQ6u6J1A==" 
-      crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -78,53 +76,25 @@ if (!$latest) {
   <main>
     <h2>Dernières mesures</h2>
     <div class="cards-container">
-      <!-- Carte Température -->
       <div class="card card-temperature">
         <i class="fas fa-thermometer-half"></i>
         <h3>Température</h3>
-        <p>
-          <?php 
-          echo isset($latest['temperature']) && $latest['temperature'] !== null 
-               ? $latest['temperature'] . " °C" 
-               : '--'; 
-          ?>
-        </p>
+        <p><?= $latest['temperature'] !== null ? $latest['temperature'] . " °C" : '--'; ?></p>
       </div>
-      <!-- Carte Humidité -->
       <div class="card card-humidity">
         <i class="fas fa-tint"></i>
         <h3>Humidité</h3>
-        <p>
-          <?php 
-          echo isset($latest['humidity']) && $latest['humidity'] !== null
-               ? $latest['humidity'] . " %"
-               : '--';
-          ?>
-        </p>
+        <p><?= $latest['humidity'] !== null ? $latest['humidity'] . " %" : '--'; ?></p>
       </div>
-      <!-- Carte Humidité du Sol -->
       <div class="card card-soil">
         <i class="fas fa-leaf"></i>
         <h3>Humidité du Sol</h3>
-        <p>
-          <?php 
-          echo isset($latest['humiditeSolRaw']) && $latest['humiditeSolRaw'] !== null
-               ? $latest['humiditeSolRaw']
-               : '--';
-          ?>
-        </p>
+        <p><?= $latest['humiditeSolRaw'] !== null ? $latest['humiditeSolRaw'] : '--'; ?></p>
       </div>
-      <!-- Carte Luminosité -->
       <div class="card card-luminosity">
         <i class="fas fa-sun"></i>
         <h3>Luminosité</h3>
-        <p>
-          <?php 
-          echo isset($latest['luminositeRaw']) && $latest['luminositeRaw'] !== null
-               ? $latest['luminositeRaw']
-               : '--';
-          ?>
-        </p>
+        <p><?= $latest['luminositeRaw'] !== null ? $latest['luminositeRaw'] : '--'; ?></p>
       </div>
     </div>
 
@@ -133,11 +103,8 @@ if (!$latest) {
   </main>
 
   <script>
-    const data = <?php echo json_encode($data); ?>;
-    
-    if (!Array.isArray(data) || data.length === 0) {
-      console.log("Aucune mesure disponible.");
-    } else {
+    const data = <?= json_encode($data); ?>;
+    if (Array.isArray(data) && data.length > 0) {
       const labels   = data.map(item => item.timestamp);
       const tempData = data.map(item => item.temperature);
       const humData  = data.map(item => item.humidity);
@@ -149,30 +116,10 @@ if (!$latest) {
         data: {
           labels,
           datasets: [
-            {
-              label: 'Température (°C)',
-              data: tempData,
-              borderColor: 'red',
-              fill: false
-            },
-            {
-              label: 'Humidité (%)',
-              data: humData,
-              borderColor: 'blue',
-              fill: false
-            },
-            {
-              label: 'Humidité du Sol',
-              data: soilData,
-              borderColor: 'orange',
-              fill: false
-            },
-            {
-              label: 'Luminosité',
-              data: lumiData,
-              borderColor: 'green',
-              fill: false
-            }
+            { label: 'Température (°C)', data: tempData, borderColor: 'red', fill: false },
+            { label: 'Humidité (%)', data: humData, borderColor: 'blue', fill: false },
+            { label: 'Humidité du Sol', data: soilData, borderColor: 'orange', fill: false },
+            { label: 'Luminosité', data: lumiData, borderColor: 'green', fill: false }
           ]
         },
         options: {
