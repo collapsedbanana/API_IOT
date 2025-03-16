@@ -60,6 +60,7 @@ public class DeviceController {
 
     // Assigner un device à un utilisateur (accessible généralement aux admins)
     @PostMapping("/assign")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> assignDeviceToUser(@RequestParam String deviceId,
                                                      @RequestParam String username) {
         Device device = deviceRepository.findByDeviceId(deviceId);
@@ -77,6 +78,7 @@ public class DeviceController {
 
     // Supprimer un device (et ses mesures si la relation est en cascade)
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteDevice(@PathVariable Long id) {
         if (!deviceRepository.existsById(id)) {
             return ResponseEntity.status(404).body("❌ Device non trouvé.");
