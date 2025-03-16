@@ -80,8 +80,8 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Authentication auth) {
-        if (auth == null) {
-            return ResponseEntity.status(401).body("Non authentifié");
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Non authentifié");
         }
     
         String username = auth.getName();
@@ -93,5 +93,6 @@ public class AuthController {
             "role", user.getRole()
         ));
     }
+    
     
 }
