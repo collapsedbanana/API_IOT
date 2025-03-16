@@ -2,52 +2,41 @@
 session_start();
 header("Content-Type: application/json");
 
-// Récupération des données POST
+// Lecture des données
 $data = json_decode(file_get_contents("php://input"), true);
 
-// Vérification
-if (!isset($data['username'], $data['password'])) {
+$username = $data['username'] ?? null;
+$token    = $data['token'] ?? null;
+$role     = $data['role'] ?? null;
+
+if (!$username || !$token || !$role) {
     http_response_code(400);
-    echo json_encode(["error" => "Données invalides"]);
+    echo json_encode(["error" => "Données manquantes pour la session"]);
     exit();
 }
 
-$username = $data['username'];
-$password = $data['password'];
+// Appel à /api/auth/me pour valider le token côté Spring
+$opts = [
+    "http" => [
+        "method" => "GET",
+        "header" => "Authorization: Bearer $token\r\nContent-Type: application/json\r\n"
+    ]
+];
+$ctx = stream_context_create($opts);
+$response = @file_get_contents("http://192.168.11.70:8080/api/auth/me", false, $ctx);
+$info = json_decode($response, true);
 
-// 1. Appel à /api/auth/login pour récupérer le token JWT
-$ch = curl_init("http://192.168.11.70:8080/api/auth/login");
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(["username" => $username, "password" => $password]));
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-$response = curl_exec($ch);
-$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-// Vérifie que l'API Spring a répondu correctement
-if ($http_code !== 200 || !$response) {
+if (!$info || !isset($info['username'])) {
     http_response_code(401);
-    echo json_encode(["error" => "Échec de l'authentification (API)"]);
+    echo json_encode(["error" => "Token invalide ou expiré"]);
     exit();
 }
 
-$responseData = json_decode($response, true);
-$token = $responseData['token'] ?? null;
-$role  = $responseData['role'] ?? null;
-
-if (!$token || !$role) {
-    http_response_code(401);
-    echo json_encode(["error" => "Token ou rôle manquant dans la réponse"]);
-    exit();
-}
-
-// Enregistrement en session PHP
-$_SESSION['token'] = $token;
+// Création de session PHP
 $_SESSION['user_id'] = $username;
 $_SESSION['role'] = $role;
+$_SESSION['token'] = $token;
 
-// Réponse OK
 http_response_code(200);
-echo json_encode(["message" => "Session créée", "token" => $token, "role" => $role]);
+echo json_encode(["message" => "Session créée", "role" => $role]);
 ?>

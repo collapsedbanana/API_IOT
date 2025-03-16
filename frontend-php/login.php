@@ -36,7 +36,7 @@ if (isset($_SESSION['user_id'])) {
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
 
-      // 1. Authentifie via l'API Spring
+      // 1. Authentifie via Spring API
       fetch("http://192.168.11.70:8080/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -44,18 +44,22 @@ if (isset($_SESSION['user_id'])) {
       })
       .then(resp => {
         if (!resp.ok) throw new Error("Échec de l'authentification");
-        return resp.text();
+        return resp.json();
       })
-      .then(() => {
-        // 2. Si succès, crée la session PHP
+      .then(data => {
+        // 2. Crée la session PHP avec les données Spring
         return fetch("do_login.php", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password })
+          body: JSON.stringify({
+            username: data.username,
+            token: data.token,
+            role: data.role
+          })
         });
       })
       .then(resp => {
-        if (!resp.ok) throw new Error("Erreur lors de la création de la session PHP");
+        if (!resp.ok) throw new Error("Erreur lors de la création de la session");
         window.location.href = "dashboard.php";
       })
       .catch(err => {
