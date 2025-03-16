@@ -2,16 +2,18 @@ package com.esp32web.api.esp32_mqtt.controller;
 
 import com.esp32web.api.esp32_mqtt.model.User;
 import com.esp32web.api.esp32_mqtt.repository.UserRepository;
+import com.esp32web.api.esp32_mqtt.service.CustomUserDetailsService;
+import com.esp32web.api.esp32_mqtt.service.JwtService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import com.esp32web.api.esp32_mqtt.security.JwtService;
-
 
 import java.util.Map;
 
@@ -30,6 +32,9 @@ public class AuthController {
 
     @Autowired
     private JwtService jwtService;
+
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
@@ -50,22 +55,25 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User loginRequest) {
         logger.info("Tentative de connexion pour l'utilisateur: {}", loginRequest.getUsername());
-    
+
         User user = userRepository.findByUsername(loginRequest.getUsername());
-        if (user == null || !passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            logger.warn("Identifiants invalides pour {}", loginRequest.getUsername());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Nom d'utilisateur ou mot de passe incorrect");
+        if (user == null) {
+            logger.warn("Utilisateur {} non trouvé", loginRequest.getUsername());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur non trouvé");
         }
-    
-        String token = jwtService.generateToken(user);
-    
-        return ResponseEntity.ok(Map.of(
-            "token", token,
-            "username", user.getUsername(),
-            "role", user.getRole()
-        ));
+
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            logger.warn("Mot de passe incorrect pour l'utilisateur {}", loginRequest.getUsername());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Mot de passe incorrect");
+        }
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
+        String token = jwtService.generateToken(userDetails);
+
+        logger.info("Connexion réussie pour l'utilisateur: {}", loginRequest.getUsername());
+        return ResponseEntity.ok(Map.of("token", token));
     }
-    
+
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Authentication auth) {
         String username = auth.getName();
