@@ -2,9 +2,7 @@
 session_start();
 header("Content-Type: application/json");
 
-// Lecture des données
 $data = json_decode(file_get_contents("php://input"), true);
-
 $username = $data['username'] ?? null;
 $token    = $data['token'] ?? null;
 $role     = $data['role'] ?? null;
@@ -15,7 +13,7 @@ if (!$username || !$token || !$role) {
     exit();
 }
 
-// Appel à /api/auth/me pour valider le token côté Spring
+// Vérifie la validité du token via Spring
 $opts = [
     "http" => [
         "method" => "GET",
@@ -32,11 +30,10 @@ if (!$info || !isset($info['username'])) {
     exit();
 }
 
-// Création de session PHP
+// Enregistrement de la session
 $_SESSION['user_id'] = $username;
 $_SESSION['role'] = $role;
 $_SESSION['token'] = $token;
 
 http_response_code(200);
 echo json_encode(["message" => "Session créée", "role" => $role]);
-?>

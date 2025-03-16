@@ -31,40 +31,36 @@ if (isset($_SESSION['user_id'])) {
   </div>
 
   <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
 
-      // 1. Authentifie via Spring API
-      fetch("http://192.168.11.70:8080/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-      })
-      .then(resp => {
-        if (!resp.ok) throw new Error("Échec de l'authentification");
-        return resp.json();
-      })
-      .then(data => {
-        // 2. Crée la session PHP avec les données Spring
-        return fetch("do_login.php", {
+      try {
+        const authResp = await fetch("http://192.168.11.70:8080/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+
+        if (!authResp.ok) throw new Error("Échec de l'authentification");
+        const authData = await authResp.json();
+
+        const sessionResp = await fetch("do_login.php", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            username: data.username,
-            token: data.token,
-            role: data.role
+            username,
+            token: authData.token,
+            role: authData.role
           })
         });
-      })
-      .then(resp => {
-        if (!resp.ok) throw new Error("Erreur lors de la création de la session");
+
+        if (!sessionResp.ok) throw new Error("Erreur session PHP");
         window.location.href = "dashboard.php";
-      })
-      .catch(err => {
+      } catch (err) {
         document.getElementById("errorMsg").innerText = err.message;
-      });
+      }
     });
   </script>
 </body>

@@ -1,27 +1,20 @@
 <?php
-
-// Active les erreurs PHP pour le debug
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-
-// Démarre la session
 session_start();
 
-// Vérifie si l'utilisateur est connecté
 if (!isset($_SESSION['token']) || !isset($_SESSION['role'])) {
     header("Location: login.php");
     exit();
 }
 
-// Détermine l'endpoint en fonction du rôle
 $endpoint = ($_SESSION['role'] === 'ADMIN')
     ? "/api/measurements/all"
     : "/api/measurements/mine";
 
 $api_url = "http://192.168.11.70:8080" . $endpoint;
 
-// Appel API via cURL
 $ch = curl_init($api_url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -31,7 +24,6 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
 $response = curl_exec($ch);
 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-// Gestion des erreurs cURL
 if ($response === false) {
     $error = curl_error($ch);
     curl_close($ch);
@@ -39,24 +31,19 @@ if ($response === false) {
 }
 curl_close($ch);
 
-// Vérifie que l'appel a fonctionné
 if ($http_code !== 200) {
     http_response_code($http_code);
     die("❌ Erreur API : HTTP $http_code — Veuillez vérifier le backend.");
 }
 
-// Décodage JSON
 $data = json_decode($response, true);
 if (!is_array($data)) {
     echo "<pre>⚠️ Réponse brute non exploitable :\n$response</pre>";
     $data = [];
 }
 
-// Limiter aux 10 dernières mesures
 $data = array_slice($data, -10);
 $latest = end($data);
-
-// Valeurs par défaut si aucune mesure
 if (!$latest) {
     $latest = [
         'temperature'     => null,
