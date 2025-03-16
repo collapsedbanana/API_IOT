@@ -1,4 +1,4 @@
-package com.esp32web.api.esp32_mqtt.config;
+package com.esp32web.api.esp32_mqtt.security;
 
 import com.esp32web.api.esp32_mqtt.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
