@@ -3,9 +3,11 @@ package com.esp32web.api.esp32_mqtt.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +16,7 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    private final String SECRET_KEY = "very_secret_key";
+    private final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256); // clé forte automatique
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -28,7 +30,7 @@ public class JwtService {
     private Claims extractAllClaims(String token) {
         return Jwts
                 .parserBuilder()
-                .setSigningKey(SECRET_KEY.getBytes())
+                .setSigningKey(SECRET_KEY)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -44,8 +46,8 @@ public class JwtService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10h
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY.getBytes())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .signWith(SECRET_KEY)
                 .compact();
     }
 
