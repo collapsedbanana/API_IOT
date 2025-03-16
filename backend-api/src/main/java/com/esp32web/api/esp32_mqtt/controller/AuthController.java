@@ -3,7 +3,7 @@ package com.esp32web.api.esp32_mqtt.controller;
 import com.esp32web.api.esp32_mqtt.model.User;
 import com.esp32web.api.esp32_mqtt.repository.UserRepository;
 import com.esp32web.api.esp32_mqtt.service.CustomUserDetailsService;
-import com.esp32web.api.esp32_mqtt.service.JwtService;
+import com.esp32web.api.esp32_mqtt.security.JwtService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +71,11 @@ public class AuthController {
         String token = jwtService.generateToken(userDetails);
 
         logger.info("Connexion réussie pour l'utilisateur: {}", loginRequest.getUsername());
-        return ResponseEntity.ok(Map.of("token", token));
+        return ResponseEntity.ok(Map.of(
+            "token", token,
+            "username", user.getUsername(),
+            "role", user.getRole()
+        ));
     }
 
     @GetMapping("/me")
