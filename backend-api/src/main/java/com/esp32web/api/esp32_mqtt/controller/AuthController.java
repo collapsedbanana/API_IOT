@@ -2,7 +2,6 @@ package com.esp32web.api.esp32_mqtt.controller;
 
 import com.esp32web.api.esp32_mqtt.model.User;
 import com.esp32web.api.esp32_mqtt.repository.UserRepository;
-import com.esp32web.api.esp32_mqtt.security.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import com.esp32web.api.esp32_mqtt.security.JwtService;
+
 
 import java.util.Map;
 

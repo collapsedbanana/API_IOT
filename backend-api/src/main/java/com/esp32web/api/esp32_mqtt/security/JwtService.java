@@ -1,4 +1,4 @@
-package com.esp32web.api.esp32_mqtt.service;
+package com.esp32web.api.esp32_mqtt.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
