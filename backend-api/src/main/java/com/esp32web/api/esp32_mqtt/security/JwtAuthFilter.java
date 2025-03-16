@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import com.esp32web.api.esp32_mqtt.service.JwtService;
+import com.esp32web.api.esp32_mqtt.security.JwtService;
 import com.esp32web.api.esp32_mqtt.service.CustomUserDetailsService;
 
 import java.io.IOException;
