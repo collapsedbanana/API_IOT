@@ -54,6 +54,31 @@
 			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
 			<version>${paho-mqtt.version}</version>
 		</dependency>
+		<dependency>
+  <groupId>io.jsonwebtoken</groupId>
+  <artifactId>jjwt-api</artifactId>
+  <version>0.11.5</version>
+</dependency>
+<dependency>
+  <groupId>io.jsonwebtoken</groupId>
+  <artifactId>jjwt-impl</artifactId>
+  <version>0.11.5</version>
+  <scope>runtime</scope>
+</dependency>
+<dependency>
+  <groupId>io.jsonwebtoken</groupId>
+  <artifactId>jjwt-jackson</artifactId> <!-- ou jjwt-gson si tu préfères -->
+  <version>0.11.5</version>
+  <scope>runtime</scope>
+</dependency>
+
+<dependency>
+  <groupId>org.projectlombok</groupId>
+  <artifactId>lombok</artifactId>
+  <version>1.18.30</version>
+  <scope>provided</scope>
+</dependency>
+
 
 		<!-- Spring Boot Testing -->
 		<dependency>
