@@ -67,9 +67,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'ADMIN') {
   const apiBase = 'http://192.168.11.70:8080';
 
   const authHeader = {
-    'Authorization': 'Basic ' + btoa('<?php echo $_SESSION["user_id"]; ?>:<?php echo $_SESSION["password"]; ?>'),
-    'Content-Type': 'application/json'
-  };
+  'Authorization': 'Bearer <?php echo $_SESSION["token"]; ?>',
+  'Content-Type': 'application/json'
+};
+
 
   let devices = [];
 

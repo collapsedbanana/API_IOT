@@ -80,13 +80,18 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Authentication auth) {
+        if (auth == null) {
+            return ResponseEntity.status(401).body("Non authentifié");
+        }
+    
         String username = auth.getName();
         User user = userRepository.findByUsername(username);
         if (user == null) return ResponseEntity.notFound().build();
-
+    
         return ResponseEntity.ok(Map.of(
             "username", user.getUsername(),
             "role", user.getRole()
         ));
     }
+    
 }

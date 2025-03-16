@@ -2,13 +2,10 @@
 session_start();
 
 // Vérifier que l'utilisateur est connecté et a un rôle
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['password']) || !isset($_SESSION['role'])) {
+if (!isset($_SESSION['token']) || !isset($_SESSION['role'])) {
     header("Location: login.php");
     exit();
 }
-
-$httpAuthUser = $_SESSION['user_id'];
-$httpAuthPass = $_SESSION['password'];
 
 // Choix de l'endpoint : ADMIN voit tout, les autres voient seulement leurs données
 $endpoint = ($_SESSION['role'] === 'ADMIN')
@@ -20,12 +17,12 @@ $api_url = "http://192.168.11.70:8080" . $endpoint;
 $opts = [
     "http" => [
         "method" => "GET",
-        "header" => "Authorization: Basic " . base64_encode("$httpAuthUser:$httpAuthPass") . "\r\n" .
-                    "Content-Type: application/json\r\n"
+        "header" => "Authorization: Bearer " . $_SESSION['token'] . "\r\nContent-Type: application/json\r\n"
     ]
 ];
 $context = stream_context_create($opts);
 
+// Le reste du code ne change pas
 $response = @file_get_contents($api_url, false, $context);
 if ($response === false) {
     die("Erreur lors de la récupération des données de l'API (peut-être 401, 403, ou 500).");
