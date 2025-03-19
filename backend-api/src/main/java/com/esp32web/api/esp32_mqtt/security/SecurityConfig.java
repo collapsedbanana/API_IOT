@@ -55,14 +55,14 @@ public class SecurityConfig {
             "http://localhost",
             "https://localhost"
         ));
-        
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-
+    
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+    
 
     @Bean
     public PasswordEncoder passwordEncoder() {
