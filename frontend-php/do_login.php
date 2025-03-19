@@ -21,7 +21,7 @@ $opts = [
     ]
 ];
 $ctx = stream_context_create($opts);
-$response = @file_get_contents("http://192.168.11.70:8443/api/auth/me", false, $ctx);
+$response = @file_get_contents("https://192.168.11.70:8443/api/auth/me", false, $ctx);
 $info = json_decode($response, true);
 
 if (!$info || !isset($info['username'])) {
