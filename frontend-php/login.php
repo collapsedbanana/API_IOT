@@ -37,7 +37,7 @@ if (isset($_SESSION['user_id'])) {
       const password = document.getElementById('password').value;
 
       try {
-        const authResp = await fetch("http://192.168.11.70:8080/api/auth/login", {
+        const authResp = await fetch("http://192.168.11.70:8443/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, password })

@@ -64,7 +64,7 @@ $token = htmlspecialchars($_SESSION['token'], ENT_QUOTES, 'UTF-8');
 </table>
 
 <script>
-const apiBase = 'http://192.168.11.70:8080';
+const apiBase = 'http://192.168.11.70:8443';
 const authHeader = {
   'Authorization': 'Bearer <?= $token ?>',
   'Content-Type': 'application/json'

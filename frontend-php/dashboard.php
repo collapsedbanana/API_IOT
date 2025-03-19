@@ -1,4 +1,4 @@
-<?php
+<?php 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -13,7 +13,7 @@ $endpoint = ($_SESSION['role'] === 'ADMIN')
     ? "/api/measurements/all"
     : "/api/measurements/mine";
 
-$api_url = "http://192.168.11.70:8080" . $endpoint;
+$api_url = "https://192.168.11.70:8443" . $endpoint; // ✅ HTTPS
 
 $ch = curl_init($api_url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -21,6 +21,8 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
     "Authorization: Bearer " . $_SESSION['token'],
     "Content-Type: application/json"
 ]);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // ✅ IGNORE certificat auto-signé
+
 $response = curl_exec($ch);
 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
@@ -53,6 +55,7 @@ if (!$latest) {
     ];
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
