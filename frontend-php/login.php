@@ -8,6 +8,7 @@ if (isset($_SESSION['user_id'])) {
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
   <meta charset="UTF-8">
   <title>Connexion</title>
   <style>
