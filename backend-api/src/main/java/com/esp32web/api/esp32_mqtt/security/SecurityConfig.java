@@ -33,12 +33,12 @@ public class SecurityConfig {
             .and()
             .csrf().disable()
             .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/", "/api/auth/login", "/api/auth/register").permitAll()
-            .requestMatchers("/api/auth/me").authenticated()
-            .requestMatchers("/api/admin/users/**").hasRole("ADMIN")
-            .anyRequest().authenticated()
-        )
-        
+                .requestMatchers("/", "", "/index.html").permitAll() // accès public à la racine
+                .requestMatchers("/api/auth/login", "/api/auth/register").permitAll() // login/register sans token
+                .requestMatchers("/api/auth/me").authenticated()
+                .requestMatchers("/api/admin/users/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -57,12 +57,11 @@ public class SecurityConfig {
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-    
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-    
 
     @Bean
     public PasswordEncoder passwordEncoder() {
