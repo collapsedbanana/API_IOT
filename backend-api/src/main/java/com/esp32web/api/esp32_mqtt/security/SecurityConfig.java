@@ -51,8 +51,11 @@ public class SecurityConfig {
         config.setAllowCredentials(true);
         config.setAllowedOrigins(List.of(
             "http://192.168.11.70",
-            "http://localhost"
+            "https://192.168.11.70",
+            "http://localhost",
+            "https://localhost"
         ));
+        
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
 
