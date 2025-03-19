@@ -33,8 +33,8 @@ public class SecurityConfig {
             .and()
             .csrf().disable()
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "", "/index.html").permitAll() // accès public à la racine
-                .requestMatchers("/api/auth/login", "/api/auth/register").permitAll() // login/register sans token
+                .requestMatchers("/").permitAll() // ✅ Ceci est OK
+                .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
                 .requestMatchers("/api/auth/me").authenticated()
                 .requestMatchers("/api/admin/users/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
