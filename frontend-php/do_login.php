@@ -13,11 +13,15 @@ if (!$username || !$token || !$role) {
     exit();
 }
 
-// Vérifie la validité du token via Spring
+// Vérifie la validité du token via Spring en désactivant la vérification SSL
 $opts = [
     "http" => [
         "method" => "GET",
         "header" => "Authorization: Bearer $token\r\nContent-Type: application/json\r\n"
+    ],
+    "ssl" => [
+        "verify_peer" => false,
+        "verify_peer_name" => false
     ]
 ];
 $ctx = stream_context_create($opts);
