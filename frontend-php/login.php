@@ -1,17 +1,6 @@
-<?php
-session_start();
-if (isset($_SESSION['user_id'])) {
-    header("Location: dashboard.php");
-    exit();
-}
-?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<link rel="icon" href="fav_icon/favicon.ico" type="image/x-icon">
-<link rel="icon" type="image/png" sizes="32x32" href="fav_icon/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="fav_icon/favicon-16x16.png">
-
   <meta charset="UTF-8">
   <title>Connexion</title>
   <style>
@@ -41,7 +30,7 @@ if (isset($_SESSION['user_id'])) {
       const password = document.getElementById('password').value;
 
       try {
-        const authResp = await fetch("https://192.168.11.70:8443/api/auth/login", {
+        const authResp = await fetch("http://192.168.11.70:8080/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, password })

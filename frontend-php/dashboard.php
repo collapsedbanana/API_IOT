@@ -13,7 +13,8 @@ $endpoint = ($_SESSION['role'] === 'ADMIN')
     ? "/api/measurements/all"
     : "/api/measurements/mine";
 
-$api_url = "https://192.168.11.70:8443" . $endpoint; // ✅ HTTPS
+// Mise à jour de l'URL vers HTTP et port 8080
+$api_url = "http://192.168.11.70:8080" . $endpoint;
 
 $ch = curl_init($api_url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -21,7 +22,8 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
     "Authorization: Bearer " . $_SESSION['token'],
     "Content-Type: application/json"
 ]);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // ✅ IGNORE certificat auto-signé
+// Cette option n'est plus nécessaire en HTTP, mais ne pose pas de problème si elle est présente
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
 $response = curl_exec($ch);
 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
