@@ -33,18 +33,16 @@ public class SecurityConfig {
             .and()
             .csrf().disable()
             .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/", "/favicon.ico", "/api/auth/login", "/api/auth/register").permitAll()
+            .requestMatchers("/favicon.ico", "/api/auth/login", "/api/auth/register").permitAll()
             .requestMatchers("/api/auth/me").authenticated()
             .requestMatchers("/api/admin/users/**").hasRole("ADMIN")
             .anyRequest().authenticated()
         )
-        
-            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-    
+        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
-    
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -52,9 +50,7 @@ public class SecurityConfig {
         config.setAllowCredentials(true);
         config.setAllowedOrigins(List.of(
             "http://192.168.11.70",
-            "https://192.168.11.70",
-            "http://localhost",
-            "https://localhost"
+            "http://localhost"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
