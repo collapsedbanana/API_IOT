@@ -1,17 +1,3 @@
-<header>
-  <h1>Tableau de Bord</h1>
-  <nav>
-    <div class="nav-links">
-      <?php if ($_SESSION['role'] === 'ADMIN'): ?>
-        <a href="admin_users.php">Gestion des utilisateurs</a>
-      <?php endif; ?>
-    </div>
-    <div>
-      👤 Connecté en tant que : <strong><?= htmlspecialchars($_SESSION['user_id']) ?></strong>
-      | <a class="logout" href="logout.php">Déconnexion</a>
-    </div>
-  </nav>
-</header>
 <?php 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -83,15 +69,18 @@ if (!$latest) {
 </head>
 <body>
   <header>
-    <h1>Tableau de Bord</h1>
-    <nav>
-      <div class="nav-links">
-        <?php if ($_SESSION['role'] === 'ADMIN'): ?>
-          <a href="admin_users.php">Gestion des utilisateurs</a>
-        <?php endif; ?>
-      </div>
-      <a class="logout" href="logout.php">Déconnexion</a>
-    </nav>
+  <h1>Tableau de Bord</h1>
+  <nav>
+    <div class="nav-links">
+      <?php if ($_SESSION['role'] === 'ADMIN'): ?>
+        <a href="admin_users.php">Gestion des utilisateurs</a>
+      <?php endif; ?>
+    </div>
+    <div>
+      👤 Connecté en tant que : <strong><?= htmlspecialchars($_SESSION['user_id']) ?></strong>
+      | <a class="logout" href="logout.php">Déconnexion</a>
+    </div>
+  </nav>
   </header>
 
   <main>
