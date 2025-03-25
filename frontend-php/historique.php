@@ -51,7 +51,7 @@ $token = htmlspecialchars($_SESSION['token'], ENT_QUOTES, 'UTF-8');
 
   <script>
     const token = "<?= $token ?>";
-    const apiUrl = "http://192.168.11.70:8080/api/measurements/mine";
+    const apiUrl = "http://192.168.10.70:8080/api/measurements/mine";
 
     async function fetchMeasurements() {
       try {

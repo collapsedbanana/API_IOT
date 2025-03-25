@@ -59,7 +59,7 @@
       }
 
       try {
-        const resp = await fetch("http://192.168.11.70:8080/api/auth/register", {
+        const resp = await fetch("http://192.168.10.70:8080/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, password })

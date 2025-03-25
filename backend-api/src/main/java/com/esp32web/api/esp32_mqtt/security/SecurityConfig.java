@@ -29,17 +29,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors()
-            .and()
-            .csrf().disable()
+            .cors(cors -> {}) // enable CORS
+            .csrf(csrf -> csrf.disable()) // ✅ recommandé depuis Spring Security 6
             .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/favicon.ico", "/api/auth/login", "/api/auth/register").permitAll()
-            .requestMatchers("/api/auth/me").authenticated()
-            .requestMatchers("/api/admin/users/**").hasRole("ADMIN")
-            .anyRequest().authenticated()
-        )
-        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .requestMatchers("/favicon.ico", "/api/auth/login", "/api/auth/register").permitAll()
+                .requestMatchers("/api/auth/me").authenticated()
+                .requestMatchers("/api/admin/users/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -49,7 +48,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.setAllowedOrigins(List.of(
-            "http://192.168.11.70",
+            "http://192.168.10.70",
             "http://localhost"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));

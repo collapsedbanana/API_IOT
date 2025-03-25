@@ -4,6 +4,8 @@ import com.esp32web.api.esp32_mqtt.model.User;
 import com.esp32web.api.esp32_mqtt.repository.UserRepository;
 import com.esp32web.api.esp32_mqtt.service.CustomUserDetailsService;
 import com.esp32web.api.esp32_mqtt.security.JwtService;
+import com.esp32web.api.esp32_mqtt.model.UserPermission;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
