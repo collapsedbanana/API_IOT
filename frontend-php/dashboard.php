@@ -14,7 +14,7 @@ $endpoint = ($_SESSION['role'] === 'ADMIN')
     : "/api/measurements/mine";
 
 // Mise à jour de l'URL vers HTTP et port 8080
-$api_url = "http://192.168.11.70:8080" . $endpoint;
+$api_url = "http://192.168.10.70:8080" . $endpoint;
 
 $ch = curl_init($api_url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

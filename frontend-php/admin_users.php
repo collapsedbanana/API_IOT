@@ -74,7 +74,7 @@ const authHeader = {
 function handle401(resp) {
   if (resp.status === 401) {
     alert("⚠️ Session expirée, veuillez vous reconnecter.");
-    window.location.href = "login.php";
+    window.location.href = "login.php"; 
     return true;
   }
   return false;

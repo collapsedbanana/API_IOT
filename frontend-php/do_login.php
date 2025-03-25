@@ -20,7 +20,7 @@ $opts = [
     ]
 ];
 $ctx = stream_context_create($opts);
-$response = @file_get_contents("http://192.168.11.70:8080/api/auth/me", false, $ctx);
+$response = @file_get_contents("http://192.168.10.70:8080/api/auth/me", false, $ctx);
 $info = json_decode($response, true);
 
 if (!$info || !isset($info['username']) || !isset($info['role'])) {
