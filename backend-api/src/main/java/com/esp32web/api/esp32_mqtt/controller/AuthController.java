@@ -39,18 +39,32 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
         logger.info("Tentative d'enregistrement pour l'utilisateur: {}", user.getUsername());
-
+    
         if (userRepository.findByUsername(user.getUsername()) != null) {
             logger.warn("Utilisateur {} déjà existant", user.getUsername());
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Utilisateur déjà existant");
         }
-
+    
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        
+        if (user.getRole() == null || user.getRole().isEmpty()) {
+            user.setRole("USER");
+        }
+    
+        UserPermission permission = new UserPermission();
+        permission.setUser(user);
+        permission.setCanViewTemperature(false);
+        permission.setCanViewLuminosite(false);
+        permission.setCanViewHumidity(false);
+        permission.setCanViewHumiditeSol(false);
+        user.setPermission(permission);
+    
         userRepository.save(user);
-
-        logger.info("Utilisateur {} enregistré avec succès", user.getUsername());
+    
+        logger.info("✅ Utilisateur {} enregistré avec succès", user.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body("Utilisateur enregistré avec succès");
     }
+    
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User loginRequest) {
